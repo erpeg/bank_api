@@ -86,7 +86,7 @@ In order to implement multiple servers sending requests to Controller Server, Mu
 
 I was considering taking two approaches in matter of deciding how new fill ticks should be processed.
 
-Algorithm that has been applied here is processing each stock synchronically. For each new fill request that is processed, quantity of stocks is iterated and decision which account should be incremented by one is tested during every iteration. 
+Algorithm that has been applied here is processing each stock synchronically. For each new fill request that is processed, quantity of stocks is iterated and decision which account should be incremented by one is tested during every iteration. In order to derive what account should be granted new stock, normalizaiton of data has been used.
 
 Advantages of this approach:
 * The most up-to-date state is sent to Position Server
