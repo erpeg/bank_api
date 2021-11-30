@@ -3,7 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 axa_venv
-
+test_venv
+*Dockerfile
+Run.bat
 # C extensions
 *.so
 
