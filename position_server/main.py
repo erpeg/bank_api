@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 import uvicorn
+import datetime
 
 
 app = FastAPI()
@@ -11,11 +12,7 @@ async def root():
 @app.post("/position_send")
 async def show_position(request: Request):
     position_tick = await request.json()
-    return {"data": position_tick}
-
-@app.get("/position")
-async def show_position(request: Request):
-    position_tick = await request.json()
+    print(f"New positions coming to position server are: {datetime.datetime.now()}: {position_tick}")
     return {"data": position_tick}
 
 
