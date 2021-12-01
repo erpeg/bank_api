@@ -20,6 +20,11 @@ class Controller:
         self.poistion_url = "http://localhost:8002/position_send"
 
     def add_work(self, item: dict):
+        """Adding new fill task to process via worker
+
+        Args:
+            item (dict): fill task in dictionary format
+        """
         self.queue.append(item)
 
     def normalize_dict(self, input_dictionary: Dict[str, int]) -> Dict[str, float]:
@@ -36,18 +41,34 @@ class Controller:
         return dict(accounts_to_normalize)
 
     def zip_dicts(self, *dcts):
+        """Function used to combine values of two dictionaries keywise
+
+        Yields:
+            [tuple]: tuple consisting of (key, value1, value2), where 1 and 2 are number of input dicts
+        """
         if not dcts:
             return
         for i in set(dcts[0]).intersection(*dcts[1:]):
             yield (i,) + tuple(d[i] for d in dcts)
 
     def select_account(self, new_stock_positions_normalized):
+        """Selecting account that should be given new stock. AUM account normalized splits are compared with Current Positions
+        that are normalized, account with the highest difference from the perfect state is selected
+
+        Args:
+            new_stock_positions_normalized (dict): Temp Stock Positions dict
+
+        Returns:
+            str: Account that should be assigned new stock
+        """
         differences = tuple(self.zip_dicts(self.accounts_split_norm, new_stock_positions_normalized))
         dict_of_diff = {account_difference[0]:account_difference[1]-account_difference[2] for account_difference in differences}
         select_acc = max(dict_of_diff, key=dict_of_diff.get)
         return select_acc
 
     def do_work(self):
+        """Function taking the first on the queue fill request and processing it
+        """
         to_process = self.queue.popleft()
         stock = to_process["stock_ticker"]
         quantity = to_process["quantity"]
@@ -81,6 +102,8 @@ class Controller:
                 self.current_positions[stock][chosen_account] += 1
 
     async def run_works(self):
+        """Function used to trigger worker.
+        """
         await asyncio.sleep(5.)
         while True:
             await asyncio.sleep(0.1)
@@ -91,6 +114,8 @@ class Controller:
                 pass
 
     async def send_data(self):
+        """Function used to send data to Postion Server
+        """
         while True:
             requests.post(self.poistion_url, data=json.dumps(self.current_positions))
             await asyncio.sleep(7.95)
